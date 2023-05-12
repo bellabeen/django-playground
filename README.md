@@ -1,1 +1,2 @@
 # django-playground
+Learn django
