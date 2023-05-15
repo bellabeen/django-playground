@@ -26,7 +26,9 @@ def create_post(request):
     elif request.method == 'POST':
         form = PostForm(request.POST)
         if form.is_valid():
-            form.save()
+            user = form.save(commit=False)
+            user.author = request.user
+            user.save()
             messages.success(request, 'The post has been created successfully.')
             return redirect('posts')
         else:
@@ -34,7 +36,8 @@ def create_post(request):
             return render(request, 'blog/post_form.html', {'form': form})
 
 def edit_post(request, id):
-    post = get_object_or_404(Post, id=id)
+    queryset = Post.objects.filter(author=request.user)
+    post = get_object_or_404(queryset, pk=id)
 
     if request.method == 'GET':
         context = {'form': PostForm(instance=post), 'id': id}
@@ -50,7 +53,8 @@ def edit_post(request, id):
             return render(request,'blog/post_form.html',{'form':form})
 
 def delete_post(request, id):
-    post = get_object_or_404(Post, pk=id)
+    queryset = Post.objects.filter(author=request.user)
+    post = get_object_or_404(queryset, pk=id)
     context = {'post': post}    
     
     if request.method == 'GET':
